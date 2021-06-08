@@ -91,7 +91,6 @@ jobs:
           command: |
             cd frontend
             npm i
-            ls node_modules | grep oauth
             npm run test
       - run:
           name: Handle frontend test failure
