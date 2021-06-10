@@ -25,5 +25,5 @@
     TYPEORM_HOST: udacity-project-db.cpuvoxvge55i.us-west-2.rds.amazonaws.com
     TYPEORM_PORT: 5432
     TYPEORM_USERNAME: postgres
-    TYPEORM_PASSWORD: Rich$Gettis3
+    TYPEORM_PASSWORD: RichGettis3
     TYPEORM_DATABASE: testdb
