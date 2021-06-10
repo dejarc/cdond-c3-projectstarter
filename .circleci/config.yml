@@ -252,12 +252,12 @@ jobs:
           command: |
             cd backend
             npm i
-            npm run migrations >> migration-output.txt
+            npm run migrations >> ~/migration-output.txt
       - run:
           name: Send migration results to memstash
           command: |
             # Your code here
-            if [[ $(cat migration-output.txt | grep "npm run build") != "" ]]; then curl -H "Content-Type: text/plain" -H "token: 14388c95-0dcb-4c92-9752-8c8d76205775" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}; fi
+            if [[ $(cat ~/migration-output.txt | grep "has been executed successfully") != "" ]]; then curl -H "Content-Type: text/plain" -H "token: 14388c95-0dcb-4c92-9752-8c8d76205775" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}; fi
      # Here's where you will add some code to rollback on failure
 
   deploy-frontend:
