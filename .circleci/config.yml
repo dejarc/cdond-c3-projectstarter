@@ -242,7 +242,7 @@ jobs:
             ls ~/
             cat ~/inventory.txt
             ansible-inventory -i ~/inventory.txt --list
-            ansible-playbook .circleci/ansible/configure-server.yml -i ~/inventory
+            ansible-playbook .circleci/ansible/configure-server.yml -i ~/inventory.txt
 
       # Here's where you will add some code to rollback on failure      
 
