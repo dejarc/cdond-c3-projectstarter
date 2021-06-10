@@ -180,6 +180,11 @@ jobs:
       # Checkout code from git
       - checkout
       - run:
+          name: Install dependencies required for workspace capability
+          command: |
+            yum install -y tar
+            yum install -y gzip
+      - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
