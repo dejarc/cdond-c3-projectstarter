@@ -241,7 +241,6 @@ jobs:
           command: |
             ls ~/
             cat ~/inventory.txt
-            cat /etc/ansible/ansible.cfg
             ansible-inventory -i ~/inventory.txt --list
             ansible-playbook .circleci/ansible/configure-server.yml -i ~/inventory
 
