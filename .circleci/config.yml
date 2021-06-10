@@ -240,7 +240,7 @@ jobs:
           command: |
             ls .circleci/ansible/
             ls ~/
-            ansible-playbook .circleci/ansible/configure-server.yml -i ~/inventory
+            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory
 
       # Here's where you will add some code to rollback on failure      
 
