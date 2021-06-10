@@ -207,13 +207,10 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project,Values=udapeople" \
             --output text >> .circleci/ansible/inventory.txt
-            cp .circleci/ansible/inventory.txt ~/
-            echo "The contents of inventory file"
-            cat ~/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - inventory.txt
+            - project/.circleci/ansible/inventory.txt
       - destroy-environment:
           frontend_stack: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
           backend_stack: udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
@@ -239,10 +236,8 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ls ~/
-            cat ~/inventory.txt
-            ansible-inventory -i ~/inventory.txt --list
-            ansible-playbook .circleci/ansible/configure-server.yml -i ~/inventory.txt
+            cat .circleci/ansible/inventory.txt
+            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
 
       # Here's where you will add some code to rollback on failure      
 
