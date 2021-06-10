@@ -246,17 +246,19 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       - run:
           name: Run migrations
           command: |
-            # Your code here
-            exit 1
+            cd backend
+            npm i
+            npm run migrations >> migration-output.txt
       - run:
           name: Send migration results to memstash
           command: |
             # Your code here
-            exit 1
-     # Here's where you will add some code to rollback on failure      
+            if [[ $(cat migration-output.txt | grep "npm run build") != "" ]]; then curl -H "Content-Type: text/plain" -H "token: 14388c95-0dcb-4c92-9752-8c8d76205775" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}; fi
+     # Here's where you will add some code to rollback on failure
 
   deploy-frontend:
     docker:
@@ -377,8 +379,8 @@ workflows:
 #              only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-#      - run-migrations:
-#          requires: [configure-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
 #      - deploy-frontend:
 #          requires: [run-migrations]
 #      - deploy-backend:
