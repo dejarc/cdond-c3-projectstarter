@@ -226,16 +226,22 @@ jobs:
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["67:d6:ad:43:a5:d7:83:7a:e8:05:73:91:c8:95:2d:05"]
       - run:
           name: Install dependencies
           command: |
-            # Your code here
-            exit 1
+            apk add --update ansible
+      - attach_workspace:
+          at: ~/
       - run:
           name: Configure server
           command: |
-            # Your code here
-            exit 1
+            ls .circleci/ansible/
+            ls ~/
+            ansible-playbook .circleci/ansible/configure-server.yml -i ~/inventory
+
       # Here's where you will add some code to rollback on failure      
 
   run-migrations:
@@ -371,9 +377,9 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
-#              only: [test-feature-branch]
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
+#              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
 #      - run-migrations:
 #          requires: [configure-infrastructure]
 #      - deploy-frontend:
