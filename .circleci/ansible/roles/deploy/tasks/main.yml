@@ -3,13 +3,13 @@
     src: ~/project/backend
     dest: ~/
 
-#- name: print environment variables
-#  shell: printenv
-#  register: printvars
-#
-#- name: debug environment output
-#  debug:
-#    var: printvars
+- name: print environment variables
+  shell: printenv
+  register: printvars
+
+- name: debug environment output
+  debug:
+    var: printvars
 
 - name: Executing node
   shell: |
