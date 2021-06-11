@@ -4,7 +4,7 @@
     dest: ~/
 
 - name: print environment variables
-  command: printenv
+  shell: printenv
   register: printvars
 
 - name: debug environment output
