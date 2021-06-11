@@ -313,6 +313,7 @@ jobs:
             apk add --update ansible
             apk add --update nodejs npm
             apk add --update rsync
+            apk add --update openssh
             cd backend
             npm i
             npm run build
