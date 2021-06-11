@@ -274,23 +274,25 @@ jobs:
             yum install -y gcc-c++ make
             curl -sL https://rpm.nodesource.com/setup_14.x | bash -
             yum install -y nodejs
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Get backend url
-          command: |
-            # your code here
-            export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | grep -E -o -m 1 "^[0-9.]+")
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "the API_URL is ${API_URL}"
-            cd frontend
-            npm i
-            npm run build
-      - run:
-          name: Deploy frontend objects
-          command: |
-            # your code here
-            aws s3 sync ./dist s3://"udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --delete
+            node -v
+            npm -v
+#      - attach_workspace:
+#          at: ~/
+#      - run:
+#          name: Get backend url
+#          command: |
+#            # your code here
+#            export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | grep -E -o -m 1 "^[0-9.]+")
+#            export API_URL="http://${BACKEND_IP}:3030"
+#            echo "the API_URL is ${API_URL}"
+#            cd frontend
+#            npm i
+#            npm run build
+#      - run:
+#          name: Deploy frontend objects
+#          command: |
+#            # your code here
+#            aws s3 sync ./dist s3://"udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --delete
       # Here's where you will add some code to rollback on failure
                     
   deploy-backend:
@@ -384,29 +386,29 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#          filters:
-#            branches:
-#              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
+#      - build-frontend
+#      - build-backend
+#      - test-frontend:
+#          requires: [build-frontend]
+#      - test-backend:
+#          requires: [build-backend]
+#      - scan-backend:
+#          requires: [build-backend]
+#      - scan-frontend:
+#          requires: [build-frontend]
+#      - deploy-infrastructure:
+#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+##          filters:
+##            branches:
+##              only: [master]
+#      - configure-infrastructure:
+#          requires: [deploy-infrastructure]
+#      - run-migrations:
+#          requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+#      - deploy-backend:
+#          requires: [run-migrations]
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
