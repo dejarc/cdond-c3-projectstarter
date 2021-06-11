@@ -1,7 +1,22 @@
-- name: Verify files present on local
-  local_action: command ls ~/project/backend
-
 - name: Ansible copy backend files to remote server
   synchronize:
-    src: ~/project/backend/dist
+    src: ~/project/backend
     dest: ~/
+
+- name: print environment variables
+  command: printenv
+  register: printvars
+
+- name: debug environment output
+  debug:
+    var: printvars
+
+- name: Executing node
+  shell: |
+    cd ~/backend
+    pm2 start ~/web/index.js -f
+  register: nodeprocess
+
+- name: debug node output
+  debug:
+    var: nodeprocess
