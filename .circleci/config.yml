@@ -325,7 +325,7 @@ jobs:
             # your code here
             #set -m
             #touch /tmp/server-output.log && tail -f /tmp/server-output.log &
-            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
             #kill %1
       # Here's where you will add some code to rollback on failure
 
