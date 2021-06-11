@@ -265,21 +265,31 @@ jobs:
       - image: amazon/aws-cli
     steps:
       # Checkout code from git
+      - checkout
       - run:
-          name: Install dependencies
+          name: Install dependencies required for workspace capability
           command: |
-            # your code here
+            yum install -y tar
+            yum install -y gzip
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
             # your code here
+            export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | grep -E -o -m 1 "^[0-9.]+")
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
       - run:
           name: Deploy frontend objects
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure      
+            echo "the API_URL is ${API_URL}"
+            cd frontend
+            npm i
+            npm run build
+            aws s3 sync ./dist s3://"udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --delete
+      # Here's where you will add some code to rollback on failure
                     
   deploy-backend:
     docker:
@@ -289,14 +299,24 @@ jobs:
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["67:d6:ad:43:a5:d7:83:7a:e8:05:73:91:c8:95:2d:05"]
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            apk add --update ansible
+            apk add --update nodejs npm
+            cd backend
+            npm i
+            npm run build
+      - attach_workspace:
+          at: ~/
       - run:
           name: Deploy backend
           command: |
             # your code here
+            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
@@ -381,10 +401,10 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-#      - deploy-frontend:
-#          requires: [run-migrations]
-#      - deploy-backend:
-#          requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:

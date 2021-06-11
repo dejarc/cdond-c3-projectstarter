@@ -1,0 +1,7 @@
+- name: Verify files present on local
+  local_action: command ls ~/ && ls ~/project/backend
+
+- name: Ansible copy backend files to remote server
+  copy:
+    src: ~/project/backend/dist
+    dest: ~/
