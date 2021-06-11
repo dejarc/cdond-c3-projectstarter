@@ -327,28 +327,53 @@ jobs:
       # Here's where you will add some code to rollback on failure
 
   smoke-test:
+    shell: /bin/sh -leo pipefail
+    environment:
+      BASH_ENV: /etc/profile
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.7-alpine3.11
       # Lightweight Docker image 
     steps:
       # Checkout code from git
+      - checkout
       - run:
-          name: Install dependencies
+          name: Install dependencies required for workspace capability
           command: |
-            # your code here
+            yum install -y tar
+            yum install -y gzip
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
-            # your code here
+            BACKEND_IP=$(cat .circleci/ansible/inventory.txt | grep -E -o -m 1 "^[0-9.]+")
+            echo 'export BACKEND_IP='"$BACKEND_IP" >> $BASH_ENV
       - run:
           name: Backend smoke test.
           command: |
-            # your code here
+            if curl -s "http://${BACKEND_IP}:3030/api/status" | grep "\"status\":\"ok\""
+            then
+              echo "Backend smoke test passed!"
+              return 0
+            else
+              echo "Backend smoke test failed!"
+              return 1
+            fi
       - run:
           name: Frontend smoke test.
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure  
+            #URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com"
+            URL="http://udapeople-9ca2624.s3-website-us-west-2.amazonaws.com"
+            if curl -s ${URL} | grep "Welcome"
+            then
+              echo "Frontend smoke test passed!"
+              return 0
+            else
+              echo "Frontend smoke test failed!"
+              return 1
+            fi
+      # Here's where you will add some code to rollback on failure
 
   cloudfront-update:
     docker:
@@ -389,29 +414,30 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#          filters:
-#            branches:
-#              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+#      - build-frontend
+#      - build-backend
+#      - test-frontend:
+#          requires: [build-frontend]
+#      - test-backend:
+#          requires: [build-backend]
+#      - scan-backend:
+#          requires: [build-backend]
+#      - scan-frontend:
+#          requires: [build-frontend]
+#      - deploy-infrastructure:
+#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+##          filters:
+##            branches:
+##              only: [master]
+#      - configure-infrastructure:
+#          requires: [deploy-infrastructure]
+#      - run-migrations:
+#          requires: [configure-infrastructure]
+#      - deploy-frontend:
+#          requires: [run-migrations]
+#      - deploy-backend:
+#          requires: [run-migrations]
+      - smoke-test
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
