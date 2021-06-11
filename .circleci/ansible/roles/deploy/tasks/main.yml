@@ -14,7 +14,7 @@
 - name: Executing node
   shell: |
     cd ~/backend
-    pm2 start ~/web/index.js -f
+    pm2 start dist/main.js -f
   register: nodeprocess
 
 - name: debug node output
