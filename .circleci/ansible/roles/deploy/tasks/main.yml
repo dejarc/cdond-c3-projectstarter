@@ -2,6 +2,6 @@
   local_action: command ls ~/project/backend
 
 - name: Ansible copy backend files to remote server
-  copy:
+  synchronize:
     src: ~/project/backend/dist
     dest: ~/
