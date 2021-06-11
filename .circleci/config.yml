@@ -271,6 +271,7 @@ jobs:
           command: |
             yum install -y tar
             yum install -y gzip
+            yum install -y nodejs
       - attach_workspace:
           at: ~/
       - run:
@@ -279,15 +280,14 @@ jobs:
             # your code here
             export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | grep -E -o -m 1 "^[0-9.]+")
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-      - run:
-          name: Deploy frontend objects
-          command: |
-            # your code here
             echo "the API_URL is ${API_URL}"
             cd frontend
             npm i
             npm run build
+      - run:
+          name: Deploy frontend objects
+          command: |
+            # your code here
             aws s3 sync ./dist s3://"udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --delete
       # Here's where you will add some code to rollback on failure
                     
