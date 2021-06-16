@@ -334,41 +334,42 @@ jobs:
           command: |
             apk add --update curl
             apk add --update nodejs npm
-            pip3 install awscli --upgrade --user
+            pip3 install --upgrade pip
+            pip3 install awscli
             aws --version
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Get backend url
-          command: |
-            BACKEND_IP=$(cat .circleci/ansible/inventory.txt | grep -E -o -m 1 "^[0-9.]+")
-            echo 'export BACKEND_IP='"$BACKEND_IP" >> $BASH_ENV
-      - run:
-          name: Backend smoke test.
-          command: |
-            if curl -s "http://${BACKEND_IP}:3030/api/status" | grep "\"status\":\"ok\""
-            then
-              echo "Backend smoke test passed!"
-              return 0
-            else
-              echo "Backend smoke test failed!"
-              return 1
-            fi
-      - run:
-          name: Frontend smoke test.
-          command: |
-            # your code here
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com"
-            if curl -s ${URL} | grep "Welcome"
-            then
-              echo "Frontend smoke test failed!"
-              return 1
-            else
-              echo "Frontend smoke test failed!"
-              return 1
-            fi
-      - destroy-environment
-      - revert-migrations
+#      - attach_workspace:
+#          at: ~/
+#      - run:
+#          name: Get backend url
+#          command: |
+#            BACKEND_IP=$(cat .circleci/ansible/inventory.txt | grep -E -o -m 1 "^[0-9.]+")
+#            echo 'export BACKEND_IP='"$BACKEND_IP" >> $BASH_ENV
+#      - run:
+#          name: Backend smoke test.
+#          command: |
+#            if curl -s "http://${BACKEND_IP}:3030/api/status" | grep "\"status\":\"ok\""
+#            then
+#              echo "Backend smoke test passed!"
+#              return 0
+#            else
+#              echo "Backend smoke test failed!"
+#              return 1
+#            fi
+#      - run:
+#          name: Frontend smoke test.
+#          command: |
+#            # your code here
+#            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com"
+#            if curl -s ${URL} | grep "Welcome"
+#            then
+#              echo "Frontend smoke test failed!"
+#              return 1
+#            else
+#              echo "Frontend smoke test failed!"
+#              return 1
+#            fi
+#      - destroy-environment
+#      - revert-migrations
       # Here's where you will add some code to rollback on failure
 
   cloudfront-update:
@@ -418,31 +419,32 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-#          filters:
-#            branches:
-#              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+#      - build-frontend
+#      - build-backend
+#      - test-frontend:
+#          requires: [build-frontend]
+#      - test-backend:
+#          requires: [build-backend]
+#      - scan-backend:
+#          requires: [build-backend]
+#      - scan-frontend:
+#          requires: [build-frontend]
+#      - deploy-infrastructure:
+#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+##          filters:
+##            branches:
+##              only: [master]
+#      - configure-infrastructure:
+#          requires: [deploy-infrastructure]
+#      - run-migrations:
+#          requires: [configure-infrastructure]
+#      - deploy-frontend:
+#          requires: [run-migrations]
+#      - deploy-backend:
+#          requires: [run-migrations]
+#      - smoke-test:
+#          requires: [deploy-backend, deploy-frontend]
+      - smoke-test
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
