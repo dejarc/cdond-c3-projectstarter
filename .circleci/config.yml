@@ -365,8 +365,8 @@ jobs:
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com"
             if curl -s ${URL} | grep "Welcome"
             then
-              echo "Frontend smoke test passed!"
-              return 0
+              echo "Frontend smoke test failed!"
+              return 1
             else
               echo "Frontend smoke test failed!"
               return 1
