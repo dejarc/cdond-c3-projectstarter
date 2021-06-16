@@ -3,20 +3,14 @@ version: 2.1
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      backend_stack:
-        type: string
-      frontend_stack:
-        type: string
-      # Add parameter here   
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name << parameters.backend_stack >>
-            aws cloudformation delete-stack --stack-name << parameters.frontend_stack >>
-            exit 1
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -25,16 +19,15 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
+            SUCCESS=$(curl -H "token: 14388c95-0dcb-4c92-9752-8c8d76205775" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            if(( $SUCCESS==1 ));
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
             fi
             
 jobs:
@@ -211,9 +204,6 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy-environment:
-          frontend_stack: udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
-          backend_stack: udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
       # Here's where you will add some code to rollback on failure      
 
   configure-infrastructure:
@@ -257,7 +247,10 @@ jobs:
           name: Send migration results to memstash
           command: |
             # Your code here
-            if [[ $(cat ~/migration-output.txt | grep "has been executed successfully") != "" ]]; then curl -H "Content-Type: text/plain" -H "token: 14388c95-0dcb-4c92-9752-8c8d76205775" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}; fi
+            if grep -q "has been executed successfully" ~/migration-output.txt
+            then
+              curl -H "Content-Type: text/plain" -H "token: 14388c95-0dcb-4c92-9752-8c8d76205775" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
+            fi
      # Here's where you will add some code to rollback on failure
 
   deploy-frontend:
@@ -340,6 +333,9 @@ jobs:
           name: Install dependencies required for workspace capability
           command: |
             apk add --update curl
+            apk add --update nodejs npm
+            pip3 install awscli --upgrade --user
+            aws --version
       - attach_workspace:
           at: ~/
       - run:
@@ -371,6 +367,8 @@ jobs:
               echo "Frontend smoke test failed!"
               return 1
             fi
+      - destroy-environment
+      - revert-migrations
       # Here's where you will add some code to rollback on failure
 
   cloudfront-update:
@@ -378,22 +376,30 @@ jobs:
       - image: amazon/aws-cli
     steps:
       # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            yum install -y gcc-c++ make
+            curl -sL https://rpm.nodesource.com/setup_14.x | bash -
+            yum install -y nodejs
       - run:
           name: Update cloudfront distribution
           command: |
-            # your code here
+            aws cloudformation deploy \
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name udapeople-cloudfront \
+            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure  
-
+      - destroy-environment
+      - revert-migrations
   cleanup:
     docker:
       - image: circleci/node:13.8.0
       # Docker image here
     steps:
       # Checkout code from git
+      - checkout
       - run:
           name: Get old stack workflow id
           command: |
