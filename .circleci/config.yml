@@ -227,7 +227,7 @@ jobs:
           name: Configure server
           command: |
             cat .circleci/ansible/inventory.txt
-            TYPEORM_PASSWORD=$TYPEORM_PASSWORD ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
+            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
 
       # Here's where you will add some code to rollback on failure      
 
@@ -316,7 +316,7 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-            ANSIBLE_HOST_KEY_CHECKING=False TYPEORM_PASSWORD=$TYPEORM_PASSWORD ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
 
   smoke-test:
